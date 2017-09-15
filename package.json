@@ -1,0 +1,100 @@
+{
+    "name": "mux",
+    "displayName": "mux",
+    "description": "Open tmux windows on project load",
+    "version": "0.0.1",
+    "publisher": "elken",
+    "engines": {
+        "vscode": "^1.16.0"
+    },
+    "license": "MIT",
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.showMux",
+        "onCommand:extension.killSessions",
+        "*"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.showMux",
+                "title": "Show Mux"
+            },
+            {
+                "command": "extension.killSessions",
+                "title": "Kill mux sessions using current prefix"
+            },
+            {
+                "command": "extension.killCurrentSession",
+                "title": "Kill mux session for current project"
+            },
+            {
+                "command": "extension.configureSettings",
+                "title": "Configure Mux"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Mux Configuration",
+            "properties": {
+                "mux.tmuxPath": {
+                    "type": "string",
+                    "default": "tmux",
+                    "description": "Path to tmux executable"
+                },
+                "mux.useGlobal": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether or not to use the globally defined configuration"
+                },
+                "mux.globalOverwritesProject": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether or not to use the globally defined configuration over per-project configuration"
+                },
+                "mux.globalConfiguration": {
+                    "type": "object",
+                    "default": {},
+                    "description": "The global mux configuration which will get loaded if no project configuration is found"
+                },
+                "mux.projectConfiguration": {
+                    "type": "object",
+                    "default": {},
+                    "description": "The mux configuration for a given project (should NOT be used in user settings)"
+                },
+                "mux.prefix": {
+                    "type": "string",
+                    "default": "vsc",
+                    "description": "String to prepend to session names to differentiate over normal tmux sessions"
+                },
+                "mux.runAtStartup": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether or not to run the mux session at startup"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^7.0.43",
+        "lodash.indexof": "^4.0.5",
+        "mocha": "^3.5.0",
+        "typescript": "^2.5.2",
+        "vscode": "^1.1.5"
+    },
+    "dependencies": {
+        "lodash": "^4.17.4",
+        "object-hash": "^1.1.8"
+    }
+}
