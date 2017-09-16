@@ -1,8 +1,8 @@
 {
     "name": "mux",
     "displayName": "mux",
-    "description": "Open tmux windows on project load",
-    "version": "0.0.1",
+    "description": "Manage tmux from the safety of vscode",
+    "version": "0.2.3",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
@@ -16,6 +16,20 @@
         "onCommand:extension.killSessions",
         "*"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/elken/mux"
+    },
+    "keywords": [
+        "tmux",
+        "terminal",
+        "multiplexer"
+    ],
+    "icon": "mux.png",
+    "galleryBanner": {
+        "color": "#000000",
+        "theme": "dark"
+    },
     "main": "./out/src/extension",
     "contributes": {
         "commands": [
