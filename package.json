@@ -2,7 +2,7 @@
     "name": "mux",
     "displayName": "mux",
     "description": "Manage tmux from the safety of vscode",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
@@ -25,6 +25,15 @@
         "terminal",
         "multiplexer"
     ],
+    "author": {
+        "name": "Ellis Kenyo",
+        "email": "elken@mykolab.com",
+        "url": "https://elken.me"
+    },
+    "bugs": {
+        "url": "https://github.com/elken/mux/issues"
+    },
+    "homepage": "https://github.com/elken/mux",
     "icon": "mux.png",
     "galleryBanner": {
         "color": "#000000",
