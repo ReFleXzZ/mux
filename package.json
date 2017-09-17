@@ -2,7 +2,7 @@
     "name": "mux",
     "displayName": "mux",
     "description": "Manage tmux from the safety of vscode",
-    "version": "0.2.6",
+    "version": "0.3.0",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
