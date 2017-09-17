@@ -68,6 +68,23 @@ function updateSetting<T>(settingKey: string, value: T) {
     settings.update(settingKey, value);
 }
 
+function sessionExists(sessionName) {
+    const tmuxPath = getSetting('tmuxPath');
+    const ls = spawn(`${tmuxPath}`, ['ls']);
+    const grep = spawn('grep', [`sessionName`]);
+    const wc = spawn('wc', ['-l']);
+    const logCommand = (command, code) => {
+        if (code !== 0) {
+            log(`${command} exited with code ${code}`);
+        }
+    }
+    ls.stdout.on('data', data => grep.stdin.write(data));
+    ls.on('close', code => {
+        logCommand('tmux ls', code);
+        grep.stdin.end();
+    });
+}
+
 function tmuxCommand(context: vscode.ExtensionContext, args: string[]) {
     const shell = getShell();
 
@@ -81,6 +98,8 @@ function tmuxCommand(context: vscode.ExtensionContext, args: string[]) {
         return 0;
     } else {        
         log(`"${getSetting('tmuxPath')} ${args.join(' ')}" (${tmux.status}) stdout: ${tmux.stdout.toString()} stderr: ${tmux.stderr.toString()}`);
+        // if (isActivating) {
+            // runTmux();
         if (tmux.stderr.toString().startsWith('duplicate session:')) {
             vscode.window.showErrorMessage(`${_.upperFirst(tmux.stderr.toString())}`, null, {title: 'Restart'}, {title: 'Attach'}).then(clicked => {
                 switch(clicked.title) {
@@ -181,14 +200,8 @@ function killSession(sessionName) {
     return spawnSync(`${getSetting('tmuxPath')}`, ['kill-session', '-t', sessionName]);
 }
 
-export function activate(context: vscode.ExtensionContext) {
-    outputChannel = vscode.window.createOutputChannel('Mux');
-    let stateProvider: vscode.Memento = getStateProvider(context);
-    stateProvider.update('commands', []);
-    const tmuxPath = getSetting('tmuxPath');
-    const prefix = getSetting('prefix');
-
-    const projectName = getProjectName();
+function loadConfig(context: vscode.ExtensionContext) {
+    const stateProvider: vscode.Memento = getStateProvider(context);
     context.globalState.update('useWorkspaceState', false);
     if (Object.keys(getSetting('projectConfiguration')).length > 0) {
         log('Using project config');
@@ -201,7 +214,19 @@ export function activate(context: vscode.ExtensionContext) {
         log('Using no configuration');
         stateProvider.update('configuration', {});
     }
+}
 
+export function activate(context: vscode.ExtensionContext) {
+    outputChannel = vscode.window.createOutputChannel('Mux');
+    const stateProvider: vscode.Memento = getStateProvider(context);
+    stateProvider.update('commands', []);
+    const tmuxPath = getSetting('tmuxPath');
+    const prefix = getSetting('prefix');
+
+    const projectName = getProjectName();
+
+    loadConfig(context);
+    sessionExists(`${getSetting('prefix')}-${getProjectName()}`);
     stateProvider.update('hash', hash(stateProvider.get('configuration')));
 
     const tmuxCode = parseArgs(stateProvider, context);
@@ -215,6 +240,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     let showMuxCommand = vscode.commands.registerCommand('extension.showMux', () => {
+        loadConfig(context);
         if (stateProvider.get('hash') != hash(getSetting('projectConfiguration')) || stateProvider.get<String[][]>('commands').length == 0) {
             const tmuxCode = parseArgs(stateProvider, context);
             if (tmuxCode) {

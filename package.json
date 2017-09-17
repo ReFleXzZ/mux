@@ -2,11 +2,12 @@
     "name": "mux",
     "displayName": "mux",
     "description": "Manage tmux from the safety of vscode",
-    "version": "0.2.4",
+    "version": "0.2.6",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
     },
+    "preview": true,
     "license": "MIT",
     "categories": [
         "Other"
@@ -34,7 +35,7 @@
         "url": "https://github.com/elken/mux/issues"
     },
     "homepage": "https://github.com/elken/mux",
-    "icon": "mux.png",
+    "icon": ".github/mux.png",
     "galleryBanner": {
         "color": "#000000",
         "theme": "dark"

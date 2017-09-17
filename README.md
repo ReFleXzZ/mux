@@ -58,7 +58,7 @@ would give a layout that looks like
 
 ![Mux layout](.github/muxOutput.png)
 
-Support for move advanced things like pane sizes and naming windows is comming soon™.
+Support for move advanced things like pane sizes and naming windows is coming soon™.
 
 ## Contributing
 
