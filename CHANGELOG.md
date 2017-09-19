@@ -4,6 +4,15 @@ All notable changes to the "mux" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 0.4.0
+
+Simple navigation commands
+
+- Added support for moving to *most and navigation to panes
+- Cleaned up types
+- Moved `projectConfiguration` to a file (global will still be a config object)
+- Added a few bugs with settings (should be cleaned up soon)
+
 ## 0.3.0
 
 Mostly docs and a few bug fixes
@@ -27,7 +36,6 @@ Initial release, _very_ basic functionality.
 ## [Unreleased]
 
 - Add support for screen
-- Shortcuts
 - SSH loading/attaching to pre-existing user-defined sessions
 - Multiple sessions per project
 - Tests

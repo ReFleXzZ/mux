@@ -1,4 +1,3 @@
-import * as types from './types';
 import {ExtensionContext, OutputChannel, workspace, window, commands, Memento} from 'vscode';
 
 /**

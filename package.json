@@ -2,7 +2,7 @@
     "name": "mux",
     "displayName": "mux",
     "description": "Manage tmux from the safety of vscode",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
@@ -13,9 +13,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.showMux",
-        "onCommand:extension.killSessions",
-        "*"
+        "workspaceContains:.mux.json"
     ],
     "repository": {
         "type": "git",
@@ -42,22 +40,143 @@
     },
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
+        "keybindings": [
             {
-                "command": "extension.showMux",
-                "title": "Show Mux"
+                "command": "extension.moveLast",
+                "key": "win+alt+shift+1"
             },
             {
-                "command": "extension.killSessions",
-                "title": "Kill mux sessions using current prefix"
+                "command": "extension.moveNext",
+                "key": "win+alt+."
+            },
+            {
+                "command": "extension.movePrevious",
+                "key": "win+alt+,"
+            },
+            {
+                "command": "extension.showMux",
+                "key": "alt+m s"
             },
             {
                 "command": "extension.killCurrentSession",
-                "title": "Kill mux session for current project"
+                "key": "alt+m k"
+            },
+            {
+                "command": "extension.killCurrentSession",
+                "key": "alt+m shift+k"
+            },
+            {
+                "command": "extension.moveLeft",
+                "key": "alt+m left"
+            },
+            {
+                "command": "extension.moveRight",
+                "key": "alt+m right"
+            },
+            {
+                "command": "extension.moveUp",
+                "key": "alt+m up"
+            },
+            {
+                "command": "extension.moveDown",
+                "key": "alt+m down"
+            }
+        ],
+        "commands": [
+            {
+                "command": "extension.showMux",
+                "title": "Show Mux",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.killSessions",
+                "title": "Kill mux sessions using current prefix",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.killCurrentSession",
+                "title": "Kill mux session for current project",
+                "category": "Mux"
             },
             {
                 "command": "extension.configureSettings",
-                "title": "Configure Mux"
+                "title": "Configure Mux",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveLast",
+                "title": "Move to last active pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveNext",
+                "title": "Move to next clockwise pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.movePrevious",
+                "title": "Move to next counter-clockwise pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveTopmost",
+                "title": "Move to the uppermost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveBottommost",
+                "title": "Move to the bottommost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveLeftmost",
+                "title": "Move to the leftmost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveRightmost",
+                "title": "Move to the rightmost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveTopLeftmost",
+                "title": "Move to the top-leftmost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveTopRightmost",
+                "title": "Move to the top-rightmost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveBottomLeftmost",
+                "title": "Move to the bottom-leftmost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveBottomRightmost",
+                "title": "Move to the bottom-rightmost pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveUp",
+                "title": "Move up 1 pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveDown",
+                "title": "Move down 1 pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveLeft",
+                "title": "Move left 1 pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveRight",
+                "title": "Move right 1 pane",
+                "category": "Mux"
             }
         ],
         "configuration": {
@@ -69,25 +188,10 @@
                     "default": "tmux",
                     "description": "Path to tmux executable"
                 },
-                "mux.useGlobal": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether or not to use the globally defined configuration"
-                },
-                "mux.globalOverwritesProject": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Whether or not to use the globally defined configuration over per-project configuration"
-                },
                 "mux.globalConfiguration": {
                     "type": "object",
                     "default": {},
                     "description": "The global mux configuration which will get loaded if no project configuration is found"
-                },
-                "mux.projectConfiguration": {
-                    "type": "object",
-                    "default": {},
-                    "description": "The mux configuration for a given project (should NOT be used in user settings)"
                 },
                 "mux.prefix": {
                     "type": "string",
@@ -113,6 +217,8 @@
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
+        "enum-values": "^1.2.0",
+        "jsonschema": "^1.2.0",
         "lodash.indexof": "^4.0.5",
         "mocha": "^3.5.0",
         "typescript": "^2.5.2",

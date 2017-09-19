@@ -1,13 +1,14 @@
 import {ExtensionContext, OutputChannel, workspace, window, commands, Memento} from 'vscode';
 import * as os from 'os';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as _ from 'lodash';
 import * as cp from 'child_process';
 import * as hash from 'object-hash';
 import * as promisify from 'util.promisify';
-import * as types from './types';
 import * as util from './util';
 import * as log from './log';
+import { Validator, Schema } from 'jsonschema';
 
 /**
  * Check whether a session called `sessionName` is found
@@ -17,7 +18,9 @@ import * as log from './log';
  * @returns {Promise<boolean>} True if session is found, false otherwise
  */
 export async function sessionExists(sessionName: string): Promise<boolean> {
-    return parseInt(`${await promisify(cp.exec(`${util.getSetting('tmuxPath')} ls | grep ${sessionName}: | wc -l`))}`) > 0;
+    const execAsync = promisify(cp.exec);
+    const output = await execAsync(`${util.getSetting('tmuxPath')} ls | grep ${sessionName}: | wc -l`);
+    return parseInt(output) > 0;
 }
 
 
@@ -32,6 +35,7 @@ export async function sessionExists(sessionName: string): Promise<boolean> {
 export function tmuxCommand(context: ExtensionContext, args: string[]): number {
     const shell = util.getShell();
 
+    log.log(`Running ${util.getSetting('tmuxPath')} ${args}`)
     const tmux = cp.spawnSync(`${util.getSetting('tmuxPath')}`, args, {'shell': shell, 'cwd': workspace.workspaceFolders[0].uri.path});
     const stateProvider = util.getStateProvider(context);
     
@@ -150,22 +154,19 @@ export function parseArgs(context: ExtensionContext): boolean {
     const configuration = stateProvider.get('configuration');
     
     let args: string[][] = [];
-    if (configuration && Object.keys(util.getSetting('projectConfiguration')).length > 0) {
-        if (configuration.hasOwnProperty('session')) {
-            const session = configuration['session'];
-            if (session.hasOwnProperty('windows')) {
-                const windows = session.windows;
-                args.push(`new -d -s ${prefix}-${projectName} '${windows[0].command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
-                windows.forEach((window, index) => {
-                    if (window.hasOwnProperty('splits')) {
-                        window.splits.forEach(split => {
-                            args.push(`split-window -${split.isHorizontal ? 'h' : 'v'} '${split.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
-                        });
-                    } else {
-                        args.push(`new-window '${window.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
-                    }
-                });
-            }
+    if (configuration) {
+        if (configuration.hasOwnProperty('windows')) {
+            const windows = configuration['windows'];
+            args.push(`new -d -s ${prefix}-${projectName} '${windows[0].command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
+            windows.forEach((window, index) => {
+                if (window.hasOwnProperty('splits')) {
+                    window.splits.forEach(split => {
+                        args.push(`split-window -${split.isHorizontal ? 'h' : 'v'} '${split.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
+                    });
+                } else {
+                    args.push(`new-window '${window.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
+                }
+            });
         }
     } else {
         // TODO: Make this a bit safer
@@ -189,24 +190,87 @@ export function killSession(sessionName: string): cp.SpawnSyncReturns<string> {
 
 
 /**
- * Load the config into the settings store
+ * Load the config into the settings store and validate the config file.
+ * 
+ * This validation logic will be migrated to logic to live validate the config file
  * 
  * @export
  * @param {ExtensionContext} context Context of the extension
  */
 export function loadConfig(context: ExtensionContext) {
     const stateProvider: Memento = util.getStateProvider(context);
-    context.globalState.update('useWorkspaceState', false);
-    if (Object.keys(util.getSetting('projectConfiguration')).length > 0) {
+    const filePath = path.join(workspace.workspaceFolders[0].uri.fsPath, '.mux.json');
+    const file = JSON.parse(fs.readFileSync(filePath).toString());
+
+    const splitSchema = {
+        "id": "/Split",
+        "type": "object",
+        "properties": {
+            "isHorizontal": {
+                "type": "boolean",
+            },
+            "command": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "command",
+            "isHorizontal"
+        ]
+    }
+
+    const windowSchema = {
+        "id": "/Window",
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string"
+            },
+            "command": {
+                "type": "string"
+            },
+            "splits": {
+                "type": "array",
+                "items": {
+                    "$ref": "/Split"
+                }
+            }
+        },
+        "required": [
+            "command"
+        ]
+    }
+
+    const sessionSchema = {
+        "id": "/Session",
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string"
+            },
+            "windows": {
+                "type": "array",
+                "items": {
+                    "$ref": "/Window"
+                }
+            }
+        },
+        "required": [
+            "windows"
+        ]
+    }
+
+    const v = new Validator();
+    v.addSchema(sessionSchema, "/Session");
+    v.addSchema(windowSchema, "/Window");
+    v.addSchema(splitSchema, "/Split");
+    const result = v.validate(file, sessionSchema);
+    if (result.valid) {
         log.log('Using project config');
-        stateProvider.update('configuration', util.getSetting('projectConfiguration'));
-        context.globalState.update('useWorkspaceState', true);
-    } else if (util.getSetting('useGlobal')) {
+        stateProvider.update('configuration', file);
+    } else if (util.getSetting('globalConfiguration')) {
         log.log('Using global config');
         stateProvider.update('configuration', util.getSetting('globalConfiguration'));
-    } else {
-        log.log('Using no configuration');
-        stateProvider.update('configuration', {});
     }
 }
 
