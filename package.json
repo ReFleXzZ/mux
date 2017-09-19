@@ -2,7 +2,7 @@
     "name": "mux",
     "displayName": "mux",
     "description": "Manage tmux from the safety of vscode",
-    "version": "0.4.2",
+    "version": "0.4.4",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
@@ -219,13 +219,13 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
         "enum-values": "^1.2.0",
-        "jsonschema": "^1.2.0",
         "lodash.indexof": "^4.0.5",
         "mocha": "^3.5.0",
         "typescript": "^2.5.2",
         "vscode": "^1.1.5"
     },
     "dependencies": {
+        "jsonschema": "^1.2.0",
         "lodash": "^4.17.4",
         "object-hash": "^1.1.8",
         "util.promisify": "^1.0.0"
