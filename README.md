@@ -1,12 +1,20 @@
 # Mux
 
+<!-- Badges will go here -->
+
+- [Commands](#commands)
+- [Navigation](#navigation)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [Credits](#credits)
+
 Manage [tmux](https://github.com/tmux/tmux) from the safety of your editor!
 
 Mux aims to be a thin wrapper around tmux (possibly screen soon), providing an interface to allow you to describe layouts which will be called by tmux.
 
 **There be dragons here.** This might work beautifully and make you 10,00% more productive, but it's just as likely to set your Hue lights on fire and empty your bank account.
 
-## Commands provided
+## Commands
 
 ### Show Mux
 
@@ -24,9 +32,45 @@ Attempst to kill the Mux session running on the current project.
 
 Unimplemented currently, but will be used to open the relevant configuration file currently being used.
 
-## Schema
+[Back to top](#mux)
 
-Currently the schema is quite simplistic and only supports creating simple splits and windows.
+## Navigation
+
+Also provided are a number of commands to navigate within the created layouts.
+
+### Window navigation
+
+Coming soon™.
+
+### Pane navigation
+
+All standard tmux move commands are supported
+
+| Direction                                |
+|------------------------------------------|
+| The last (previously active) pane        |
+| The next pane by number                  |
+| The previous pane by number              |
+| The top pane                             |
+| The bottom pane                          |
+| The leftmost pane                        |
+| The rightmost pane                       |
+| The top-left pane                        |
+| The top-right pane                       |
+| The bottom-left pane                     |
+| The bottom-right pane                    |
+| The pane above the active pane           |
+| The pane below the active pane           |
+| The pane to the left of the active pane  |
+| The pane to the right of the active pane |
+
+Commands to map to the above directions are appropriately named (e.g. "Move left 1 pane" moves ..... well, left 1 pane).
+
+[Back to top](#mux)
+
+## Configuration
+
+Currently the schema is quite simplistic and only supports creating simple panes and windows.
 
 For example, a schema that looks like
 
@@ -37,7 +81,7 @@ For example, a schema that looks like
             "windows": [
                 {
                     "command": "zsh",
-                    "splits": [
+                    "panes": [
                         {
                             "isHorizontal": false,
                             "command": "yarn start"
@@ -60,6 +104,8 @@ would give a layout that looks like
 
 Support for move advanced things like pane sizes and naming windows is coming soon™.
 
+[Back to top](#mux)
+
 ## Contributing
 
 Below are some example commands to get you started contributing:
@@ -75,8 +121,12 @@ Then drop me a pull request on GitHub (or from the command line if you use [hub]
 
 Config files for linters and editorconfig are coming soon™.
 
+[Back to top](#mux)
+
 ## Credits
 
 The theme I use in screenshots is [Monokai Pro](https://monokai.pro/) and my tmux setup is [here](https://github.com/elken/dotfiles/blob/master/.tmux.conf).
 
 [Tmux](https://github.com/tmux/tmux/) is actively developed and maintained by a number of very talented coders.
+
+[Back to top](#mux)

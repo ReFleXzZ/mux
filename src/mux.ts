@@ -159,9 +159,9 @@ export function parseArgs(context: ExtensionContext): boolean {
             const windows = configuration['windows'];
             args.push(`new -d -s ${prefix}-${projectName} '${windows[0].command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
             windows.forEach((window, index) => {
-                if (window.hasOwnProperty('splits')) {
-                    window.splits.forEach(split => {
-                        args.push(`split-window -${split.isHorizontal ? 'h' : 'v'} '${split.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
+                if (window.hasOwnProperty('panes')) {
+                    window.panes.forEach(pane => {
+                        args.push(`split-window -${pane.isHorizontal ? 'h' : 'v'} '${pane.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
                     });
                 } else {
                     args.push(`new-window '${window.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
@@ -202,8 +202,8 @@ export function loadConfig(context: ExtensionContext) {
     const filePath = path.join(workspace.workspaceFolders[0].uri.fsPath, '.mux.json');
     const file = JSON.parse(fs.readFileSync(filePath).toString());
 
-    const splitSchema = {
-        "id": "/Split",
+    const paneSchema = {
+        "id": "/Pane",
         "type": "object",
         "properties": {
             "isHorizontal": {
@@ -229,10 +229,10 @@ export function loadConfig(context: ExtensionContext) {
             "command": {
                 "type": "string"
             },
-            "splits": {
+            "panes": {
                 "type": "array",
                 "items": {
-                    "$ref": "/Split"
+                    "$ref": "/Pane"
                 }
             }
         },
@@ -263,7 +263,7 @@ export function loadConfig(context: ExtensionContext) {
     const v = new Validator();
     v.addSchema(sessionSchema, "/Session");
     v.addSchema(windowSchema, "/Window");
-    v.addSchema(splitSchema, "/Split");
+    v.addSchema(paneSchema, "/Pane");
     const result = v.validate(file, sessionSchema);
     if (result.valid) {
         log.log('Using project config');
