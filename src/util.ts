@@ -77,3 +77,15 @@ export function updateSetting<T>(settingKey: string, value: T) {
     const settings = workspace.getConfiguration('mux');
     settings.update(settingKey, value);
 }
+
+
+/**
+ * Convert a string to spawn-appropriate argument array
+ * 
+ * @export
+ * @param {string} string String to convert
+ * @returns {string[]} Array of arguments
+ */
+export function stringToArgs(string: string): string[] {
+    return string.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g);
+}

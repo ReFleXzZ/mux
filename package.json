@@ -2,7 +2,7 @@
     "name": "mux",
     "displayName": "mux",
     "description": "Manage tmux from the safety of vscode",
-    "version": "0.4.5",
+    "version": "0.5.0",
     "publisher": "elken",
     "engines": {
         "vscode": "^1.16.0"
@@ -13,8 +13,7 @@
         "Other"
     ],
     "activationEvents": [
-        "workspaceContains:**/.mux.json",
-        "onCommand:extension.showMux"
+        "workspaceContains:.mux.json"
     ],
     "repository": {
         "type": "git",

@@ -7,7 +7,7 @@ import * as cp from 'child_process';
 import * as hash from 'object-hash';
 import * as promisify from 'util.promisify';
 import * as util from './util';
-import * as log from './log';
+import { log, LogLevel } from './log';
 import { Validator, Schema } from 'jsonschema';
 
 /**
@@ -35,7 +35,7 @@ export async function sessionExists(sessionName: string): Promise<boolean> {
 export function tmuxCommand(context: ExtensionContext, args: string[]): number {
     const shell = util.getShell();
 
-    log.log(`Running ${util.getSetting('tmuxPath')} ${args}`)
+    log(`Running ${util.getSetting('tmuxPath')} ${args}`)
     const tmux = cp.spawnSync(`${util.getSetting('tmuxPath')}`, args, {'shell': shell, 'cwd': workspace.workspaceFolders[0].uri.path});
     const stateProvider = util.getStateProvider(context);
     
@@ -44,8 +44,6 @@ export function tmuxCommand(context: ExtensionContext, args: string[]): number {
         stateProvider.update('commands', [...commands, [`${util.getSetting('tmuxPath')}`, ...args]])
         return 0;
     } else {        
-        log.log(`"${util.getSetting('tmuxPath')} ${args.join(' ')}" (${tmux.status}) stdout: ${tmux.stdout.toString()} stderr: ${tmux.stderr.toString()}`);
-        
         if (tmux.stderr.toString().startsWith('duplicate session:')) {
             window.showErrorMessage(`${_.upperFirst(tmux.stderr.toString())}`, null, {title: 'Restart'}, {title: 'Attach'}).then(clicked => {
                 switch(clicked.title) {
@@ -61,7 +59,7 @@ export function tmuxCommand(context: ExtensionContext, args: string[]): number {
                 }
             });
         } else {
-            window.showErrorMessage(`${_.upperFirst(tmux.stderr.toString())}`);
+            log(`"${util.getSetting('tmuxPath')} ${args.join(' ')}" gave ${_.upperFirst(tmux.stderr.toString())} (${tmux.status})`, LogLevel.ERROR);
         }
         return -1;
     }
@@ -77,7 +75,7 @@ export function runTmux() {
     const shell = util.getShell();
     const projectName =  util.getProjectName();
     const args = `${util.getSetting('tmuxPath')} -2 attach-session -t ${util.getSetting('prefix')}-${projectName}`;
-    log.log(`Attaching to session: ${util.getSetting('prefix')}-${projectName}`);
+    log(`Attaching to session: ${util.getSetting('prefix')}-${projectName}`);
     const term = window.createTerminal(projectName, `${shell}`, ["-c", `${args}`]);
     term.show();
 }
@@ -157,19 +155,17 @@ export function parseArgs(context: ExtensionContext): boolean {
     if (configuration) {
         if (configuration.hasOwnProperty('windows')) {
             const windows = configuration['windows'];
-            args.push(`new -d -s ${prefix}-${projectName} '${windows[0].command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
-            windows.forEach((window, index) => {
+            args.push(util.stringToArgs(`new -d -s ${prefix}-${projectName} '${windows[0].command}'`));
+            windows.forEach(window => {
                 if (window.hasOwnProperty('panes')) {
                     window.panes.forEach(pane => {
-                        args.push(`split-window -${pane.isHorizontal ? 'h' : 'v'} '${pane.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
+                        args.push(util.stringToArgs(`split-window -${pane.isHorizontal ? 'h' : 'v'} '${pane.command}'`));
                     });
                 } else {
-                    args.push(`new-window '${window.command}'`.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g));
+                    args.push(util.stringToArgs(`new-window '${window.command}'`));
                 }
             });
         }
-    } else {
-        // TODO: Make this a bit safer
     }
 
     return !_.some(args, arg => tmuxCommand(context, arg) != 0);
@@ -199,6 +195,8 @@ export function killSession(sessionName: string): cp.SpawnSyncReturns<string> {
  */
 export function loadConfig(context: ExtensionContext) {
     const stateProvider: Memento = util.getStateProvider(context);
+    stateProvider.update('commands', []);
+    stateProvider.update('configuration', {});
     const filePath = path.join(workspace.workspaceFolders[0].uri.fsPath, '.mux.json');
     const file = JSON.parse(fs.readFileSync(filePath).toString());
 
@@ -266,10 +264,10 @@ export function loadConfig(context: ExtensionContext) {
     v.addSchema(paneSchema, "/Pane");
     const result = v.validate(file, sessionSchema);
     if (result.valid) {
-        log.log('Using project config');
+        log('Using project config');
         stateProvider.update('configuration', file);
     } else if (util.getSetting('globalConfiguration')) {
-        log.log('Using global config');
+        log('Using global config');
         stateProvider.update('configuration', util.getSetting('globalConfiguration'));
     }
 }

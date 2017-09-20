@@ -18,38 +18,15 @@ import { EnumValues } from 'enum-values';
  */
 export function activate(context: ExtensionContext) {
     const stateProvider: Memento = util.getStateProvider(context);
-    stateProvider.update('commands', []);
-
     const projectName = util.getProjectName();
 
     mux.loadConfig(context);
     stateProvider.update('hash', hash(stateProvider.get('configuration')));
 
-    mux.sessionExists(`${util.getSetting('prefix')}-${util.getProjectName()}`).then(result => {
-        if (result) {
-            mux.runTmux();
-        } else {
-            const tmuxCode = mux.parseArgs(context);
-        
-            if (util.getSetting('runAtStartup')) {
-                if (tmuxCode) {
-                    mux.runTmux();
-                } else {
-                    window.createTerminal();
-                }
-            }
-        }
-    })
-
     let showMuxCommand = commands.registerCommand('extension.showMux', () => {
         mux.loadConfig(context);
-        if (stateProvider.get('hash') != hash(util.getSetting('projectConfiguration')) || stateProvider.get<string[][]>('commands').length == 0) {
-            const tmuxCode = mux.parseArgs(context);
-            if (tmuxCode) {
-                mux.runTmux();
-            } else {
-                window.createTerminal();
-            }
+        if (stateProvider.get('hash') != hash(stateProvider.get('configuration')) || stateProvider.get<string[][]>('commands').length == 0) {
+            mux.parseArgs(context) ? mux.runTmux() : window.showErrorMessage('Error parsing commands');
         } else {
             mux.runTmuxAndCommands(context);
         }
@@ -96,6 +73,16 @@ export function activate(context: ExtensionContext) {
         moveLeftOfCommand,
         moveRightOfCommand,
     );
+
+    if (util.getSetting('runAtStartup')) {
+        mux.sessionExists(`${util.getSetting('prefix')}-${util.getProjectName()}`).then(result => {
+            if (result) {
+                mux.runTmux();
+            } else {
+                mux.parseArgs(context) ? mux.runTmux() : window.showErrorMessage('Error parsing commands');
+            }
+        })
+    }
 }
 
 

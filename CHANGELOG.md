@@ -4,6 +4,15 @@ All notable changes to the "mux" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 0.5.0
+
+Almost ready for 1.0
+
+- Fixed bug at startup (so this actually _works_ now)
+- Cleaned up some function calls
+- Added calls more to OutputChannel
+- Cleaned up activate logic
+
 ## 0.4.0
 
 Simple navigation commands
