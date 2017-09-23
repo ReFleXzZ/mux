@@ -155,14 +155,14 @@ export function parseArgs(context: ExtensionContext): boolean {
     if (configuration) {
         if (configuration.hasOwnProperty('windows')) {
             const windows = configuration['windows'];
-            args.push(util.stringToArgs(`new -d -s ${prefix}-${projectName} '${windows[0].command}'`));
+            args.push(util.stringToArgs(`new -d -s ${prefix}-${projectName} -n '${windows[0].title ||  windows[0].command}' '${windows[0].command}'`));
             windows.forEach(window => {
                 if (window.hasOwnProperty('panes')) {
                     window.panes.forEach(pane => {
                         args.push(util.stringToArgs(`split-window -${pane.isHorizontal ? 'h' : 'v'} '${pane.command}'`));
                     });
                 } else {
-                    args.push(util.stringToArgs(`new-window '${window.command}'`));
+                    args.push(util.stringToArgs(`new-window -n '${window.title || window.command}' '${window.command}'`));
                 }
             });
         }

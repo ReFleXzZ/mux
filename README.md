@@ -72,29 +72,32 @@ Commands to map to the above directions are appropriately named (e.g. "Move left
 
 Currently the schema is quite simplistic and only supports creating simple panes and windows.
 
+A configuration should contain at least 1 window, and *every* window will always contain a command. Panes are optional but highly recommended.
+
 For example, a schema that looks like
 
 ```json
 {
-    "mux.projectConfiguration": {
-        "session": {
-            "windows": [
+    "windows": [
+        {
+            "title": "yarn",
+            "command": "zsh",
+            "panes": [
                 {
-                    "command": "zsh",
-                    "panes": [
-                        {
-                            "isHorizontal": false,
-                            "command": "yarn start"
-                        },
-                        {
-                            "isHorizontal": true,
-                            "command": "yarn test"
-                        }
-                    ]
+                    "isHorizontal": false,
+                    "command": "yarn start"
+                },
+                {
+                    "isHorizontal": true,
+                    "command": "yarn test"
                 }
             ]
+        },
+        {
+            "title": "API test",
+            "command": "zsh"
         }
-    }
+    ]
 }
 ```
 
