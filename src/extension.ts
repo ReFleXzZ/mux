@@ -32,46 +32,31 @@ export function activate(context: ExtensionContext) {
         }
     });
 
-    // Movement commands (too messy, need to somehow clean this up)
-    
-    let moveLastCommand = commands.registerCommand('extension.moveLast', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.LAST, context))
-    let moveNextCommand = commands.registerCommand('extension.moveNext', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.NEXT, context));    
-    let movePreviousCommand = commands.registerCommand('extension.movePrevious', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.PREVIOUS, context));    
-    let moveTopCommand = commands.registerCommand('extension.moveTop', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.TOP, context));    
-    let moveBottomCommand = commands.registerCommand('extension.moveBottom', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.BOTTOM, context));    
-    let moveLeftCommand = commands.registerCommand('extension.moveLeft', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.LEFT, context));    
-    let moveRightCommand = commands.registerCommand('extension.moveRight', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.RIGHT, context));    
-    let moveTopLeftCommand = commands.registerCommand('extension.moveTopLeft', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.TOP_LEFT, context));    
-    let moveTopRightCommand = commands.registerCommand('extension.moveTopRight', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.TOP_RIGHT, context));    
-    let moveBottomLeftCommand = commands.registerCommand('extension.moveBottomLeft', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.BOTTOM_LEFT, context));    
-    let moveBottomRightCommand = commands.registerCommand('extension.moveBottomRight', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.BOTTOM_RIGHT, context));    
-    let moveUpOfCommand = commands.registerCommand('extension.moveUpOf', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.UP_OF, context));    
-    let moveDownOfCommand = commands.registerCommand('extension.moveDownOf', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.DOWN_OF, context));    
-    let moveLeftOfCommand = commands.registerCommand('extension.moveLeftOf', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.LEFT_OF, context));    
-    let moveRightOfCommand = commands.registerCommand('extension.moveRightOf', () => terminal.moveTo(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.RIGHT_OF, context));    
-    
-    let killSessionsCommand = commands.registerCommand('extension.killSessions', () => mux.killSessions(context));
-    let killSessionCommand = commands.registerCommand('extension.killCurrentSession', () => mux.killSession(`${util.getSetting('prefix')}-${util.getProjectName()}`));
-
     context.subscriptions.push(
         showMuxCommand, 
-        killSessionCommand, 
-        killSessionsCommand,
-        moveLastCommand,
-        moveNextCommand,
-        movePreviousCommand,
-        moveTopCommand,
-        moveBottomCommand,
-        moveLeftCommand,
-        moveRightCommand,
-        moveTopLeftCommand,
-        moveTopRightCommand,
-        moveBottomLeftCommand,
-        moveBottomRightCommand,
-        moveUpOfCommand,
-        moveDownOfCommand,
-        moveLeftOfCommand,
-        moveRightOfCommand,
+        commands.registerCommand('extension.killSessions', () => mux.killSessions(context)), 
+        commands.registerCommand('extension.killCurrentSession', () => mux.killSession(`${util.getSetting('prefix')}-${util.getProjectName()}`)),
+        commands.registerCommand('extension.moveLastActivePane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.LAST_ACTIVE, context)),
+        commands.registerCommand('extension.moveToNextPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.NEXT, context)),
+        commands.registerCommand('extension.moveToPreviousPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.PREVIOUS, context)),
+        commands.registerCommand('extension.moveToTopPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.TOP, context)),
+        commands.registerCommand('extension.moveToBottomPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.BOTTOM, context)),
+        commands.registerCommand('extension.moveToLeftPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.LEFT, context)),
+        commands.registerCommand('extension.moveToRightPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.RIGHT, context)),
+        commands.registerCommand('extension.moveToTopLeftPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.TOP_LEFT, context)),
+        commands.registerCommand('extension.moveToTopRightPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.TOP_RIGHT, context)),
+        commands.registerCommand('extension.moveToBottomLeftPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.BOTTOM_LEFT, context)),
+        commands.registerCommand('extension.moveToBottomRightPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.BOTTOM_RIGHT, context)),
+        commands.registerCommand('extension.moveToUpOfPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.UP_OF, context)),
+        commands.registerCommand('extension.moveToDownOfPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.DOWN_OF, context)),
+        commands.registerCommand('extension.moveToLeftOfPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.LEFT_OF, context)),
+        commands.registerCommand('extension.moveToRightOfPane', () => terminal.moveToPaneDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.PaneNavigationDirection.RIGHT_OF, context)),
+        
+        commands.registerCommand('extension.moveToLastActiveWindow', () => terminal.moveToWindowDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.WindowNavigationDirection.LAST_ACTIVE, context)),
+        commands.registerCommand('extension.moveToNextWindow', () => terminal.moveToWindowDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.WindowNavigationDirection.NEXT, context)),
+        commands.registerCommand('extension.movePreviousWindow', () => terminal.moveToWindowDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.WindowNavigationDirection.PREVIOUS, context)),
+        commands.registerCommand('extension.moveToStartWindow', () => terminal.moveToWindowDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.WindowNavigationDirection.START, context)),
+        commands.registerCommand('extension.moveToEndWindow', () => terminal.moveToWindowDirection(`${util.getSetting('prefix')}-${util.getProjectName()}`, terminal.WindowNavigationDirection.END, context)),
     );
 
     if (util.getSetting('runAtStartup')) {

@@ -4,6 +4,13 @@ All notable changes to the "mux" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 0.6.0
+
+Choo choo, here we come on the 1.0 train
+
+- Added window navigation commands
+
+
 ## 0.5.0
 
 Almost ready for 1.0

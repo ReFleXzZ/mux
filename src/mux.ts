@@ -35,7 +35,7 @@ export async function sessionExists(sessionName: string): Promise<boolean> {
 export function tmuxCommand(context: ExtensionContext, args: string[]): number {
     const shell = util.getShell();
 
-    log(`Running ${util.getSetting('tmuxPath')} ${args}`)
+    log(`Running ${util.getSetting('tmuxPath')} ${args.join(' ')}`)
     const tmux = cp.spawnSync(`${util.getSetting('tmuxPath')}`, args, {'shell': shell, 'cwd': workspace.workspaceFolders[0].uri.path});
     const stateProvider = util.getStateProvider(context);
     
@@ -197,6 +197,7 @@ export function loadConfig(context: ExtensionContext) {
     const stateProvider: Memento = util.getStateProvider(context);
     stateProvider.update('commands', []);
     stateProvider.update('configuration', {});
+    // TODO: Add support for contextually checking the global file 
     const filePath = path.join(workspace.workspaceFolders[0].uri.fsPath, '.mux.json');
     const file = JSON.parse(fs.readFileSync(filePath).toString());
 
@@ -264,10 +265,11 @@ export function loadConfig(context: ExtensionContext) {
     v.addSchema(paneSchema, "/Pane");
     const result = v.validate(file, sessionSchema);
     if (result.valid) {
-        log('Using project config');
+        log('Using valid project config');
         stateProvider.update('configuration', file);
     } else if (util.getSetting('globalConfiguration')) {
-        log('Using global config');
+        // TODO: Implement a problem matcher
+        log('Project config is invalid, using global config', LogLevel.WARNING);
         stateProvider.update('configuration', util.getSetting('globalConfiguration'));
     }
 }

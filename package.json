@@ -42,43 +42,43 @@
     "contributes": {
         "keybindings": [
             {
-                "command": "extension.moveLast",
-                "key": "win+alt+shift+1"
+                "command": "extension.moveToLastActivePane",
+                "key": "win+alt+shift+Pane1"
             },
             {
-                "command": "extension.moveNext",
+                "command": "extension.moveToNextPane",
                 "key": "win+alt+."
             },
             {
-                "command": "extension.movePrevious",
+                "command": "extension.moveToPreviousPane",
                 "key": "win+alt+,"
             },
             {
-                "command": "extension.showMux",
+                "command": "extension.showMuxPane",
                 "key": "alt+m s"
             },
             {
-                "command": "extension.killCurrentSession",
+                "command": "extension.killCurrentSessionPane",
                 "key": "alt+m k"
             },
             {
-                "command": "extension.killCurrentSession",
-                "key": "alt+m shift+k"
+                "command": "extension.killCurrentSessionPane",
+                "key": "alt+m shift+kPane"
             },
             {
-                "command": "extension.moveLeft",
+                "command": "extension.moveToLeftPane",
                 "key": "alt+m left"
             },
             {
-                "command": "extension.moveRight",
+                "command": "extension.moveToRightPane",
                 "key": "alt+m right"
             },
             {
-                "command": "extension.moveUp",
+                "command": "extension.moveToUpPane",
                 "key": "alt+m up"
             },
             {
-                "command": "extension.moveDown",
+                "command": "extension.moveToDownPane",
                 "key": "alt+m down"
             }
         ],
@@ -104,78 +104,103 @@
                 "category": "Mux"
             },
             {
-                "command": "extension.moveLast",
+                "command": "extension.moveToLastActivePane",
                 "title": "Move to last active pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveNext",
+                "command": "extension.moveToNextPane",
                 "title": "Move to next clockwise pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.movePrevious",
+                "command": "extension.moveToPreviousPane",
                 "title": "Move to next counter-clockwise pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveTopmost",
+                "command": "extension.moveToTopmostPane",
                 "title": "Move to the uppermost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveBottommost",
+                "command": "extension.moveToBottommostPane",
                 "title": "Move to the bottommost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveLeftmost",
+                "command": "extension.moveToLeftmostPane",
                 "title": "Move to the leftmost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveRightmost",
-                "title": "Move to the rightmost pane",
+                "command": "extension.moveToRightmostPane",
+                "title": "Move to the rightmostPane pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveTopLeftmost",
+                "command": "extension.moveToTopLeftmostPane",
                 "title": "Move to the top-leftmost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveTopRightmost",
+                "command": "extension.moveToTopRightmostPane",
                 "title": "Move to the top-rightmost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveBottomLeftmost",
+                "command": "extension.moveToBottomLeftmostPane",
                 "title": "Move to the bottom-leftmost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveBottomRightmost",
+                "command": "extension.moveToBottomRightmostPane",
                 "title": "Move to the bottom-rightmost pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveUp",
+                "command": "extension.moveToUpPane",
                 "title": "Move up 1 pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveDown",
+                "command": "extension.moveToDownPane",
                 "title": "Move down 1 pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveLeft",
+                "command": "extension.moveToLeftPane",
                 "title": "Move left 1 pane",
                 "category": "Mux"
             },
             {
-                "command": "extension.moveRight",
+                "command": "extension.moveToRightPane",
                 "title": "Move right 1 pane",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveToLastActiveWindow",
+                "title": "Move to the last active window",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveToNextWindow",
+                "title": "Move to the next window in the session",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.movePreviousWindow",
+                "title": "Move to the previous window in the session",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveToStartWindow",
+                "title": "Move to the first window in the session",
+                "category": "Mux"
+            },
+            {
+                "command": "extension.moveToEndWindow",
+                "title": "Move to the last window in the session",
                 "category": "Mux"
             }
         ],
