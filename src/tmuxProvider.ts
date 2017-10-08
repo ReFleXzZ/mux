@@ -1,6 +1,5 @@
 import MuxProvider, { PaneNavigationDirection, WindowNavigationDirection, Runnable } from './provider';
 import { ExtensionContext, workspace, window } from 'vscode';
-import { tmuxCommand } from './mux';
 import { getShell, getSetting, getStateProvider, getProjectName } from './util';
 import { spawnSync, SpawnSyncReturns } from 'child_process';
 import * as _ from 'lodash';

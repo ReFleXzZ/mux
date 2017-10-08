@@ -13,82 +13,6 @@ import MuxProvider from './provider';
 import { info, error, warning } from './log';
 
 /**
- * Check whether a session called `sessionName` is found
- * 
- * @export
- * @param {string} sessionName Name of the session to find
- * @returns {Promise<boolean>} True if session is found, false otherwise
- */
-export function sessionExists(context: ExtensionContext, sessionName: string): number {
-    return tmuxCommand(context, ['has-session', '-t', sessionName], true);
-}
-
-
-/**
- * Run a tmux command and handle errors neatly
- * 
- * @export
- * @param {ExtensionContext} context Context of the current extension
- * @param {string[]} args Array of arguemnts to run
- * @returns {number} 0 if command ran successfully, -1 otherwise
- */
-// TODO: Move this to a TmuxProvider class
-export function tmuxCommand(context: ExtensionContext, args: string[], ignoreErrors: boolean = false): number {
-    const shell = util.getShell();
-
-    info(`Running ${util.getSetting('executablePath')} ${args.join(' ')}`)
-    const tmux = cp.spawnSync(`${util.getSetting('executablePath')}`, args, {'shell': shell, 'cwd': workspace.workspaceFolders[0].uri.path});
-    const stateProvider = util.getStateProvider(context);
-    
-    if (tmux.status === 0) {
-        const commands = stateProvider.get<string[][]>('commands');
-        stateProvider.update('commands', [...commands, [`${util.getSetting('executablePath')}`, ...args]])
-        return 0;
-    } else if (!ignoreErrors) {   
-        error(`"${util.getSetting('executablePath')} ${args.join(' ')}" gave ${_.upperFirst(tmux.stderr.toString())} (${tmux.status})`);
-        return -1;
-    }
-}
-
-// TODO: Clean this up slightly
-/**
- * Attempt to attach to the running session
- * 
- * @export
- */
-export function runTmux() {
-    const shell = util.getShell();
-    const projectName =  util.getProjectName();
-    const args = `${util.getSetting('executablePath')} -2 attach-session -t ${util.getSetting('prefix')}-${projectName}`;
-    info(`Attaching to session: ${util.getSetting('prefix')}-${projectName}`);
-    const term = window.createTerminal(projectName, `${shell}`, ["-c", `${args}`]);
-    term.show();
-}
-
-
-/**
- * Run saved commands and attach to the session if they exited cleanly
- * 
- * @export
- * @param {ExtensionContext} context Context of the extension
- */
-export function runTmuxAndCommands(context: ExtensionContext) {
-    const shell = util.getShell();
-    const stateProvider = util.getStateProvider(context);
-    const result = !_.some(stateProvider.get<string[][]>('commands'), command => {
-        const args = _.slice(command, 1, command.length);
-        const tmuxCode = tmuxCommand(context, args);
-        if (tmuxCode == -1) {
-            return true;
-        }
-    });
-    if (result) {
-        runTmux();
-    }
-}
-
-
-/**
  * Get all running tmux sessions
  * 
  * @export
@@ -155,10 +79,6 @@ export async function parseArgs(context: ExtensionContext, provider: MuxProvider
         }
     }
 
-    // return !_.some(args, arg => tmuxCommand(context, arg) != 0);
-    // TODO: Refactor Provider interface to builder and run build/apply here
-    // return promisify(true);
-    // return false;
     return provider.build();
 }
 
@@ -172,7 +92,7 @@ export async function parseArgs(context: ExtensionContext, provider: MuxProvider
  */
 export function killSession(sessionName: string): cp.SpawnSyncReturns<string> {
     console.info(`Killing ${sessionName}`);
-    return cp.spawnSync(`${util.getSetting('executablePath')}`, ['kill-session', '-t', sessionName]);
+    return cp.spawnSync(`${util.getSetting('executablePath', 'tmux')}`, ['kill-session', '-t', sessionName]);
 }
 
 

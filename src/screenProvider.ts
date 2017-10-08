@@ -144,7 +144,16 @@ export default class ScreenProvider extends Runnable implements MuxProvider {
      * 
      * @memberof ScreenProvider
      */
-    build() {
+    build(): boolean {
+        throw new Error("Method not implemented.");
+    }
+
+    /**
+     * Kill the currently running session
+     * 
+     * @memberof ScreenProvider
+     */
+    killSession() {
         throw new Error("Method not implemented.");
     }
 }
