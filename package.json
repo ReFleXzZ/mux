@@ -85,7 +85,7 @@
         "commands": [
             {
                 "command": "extension.showMux",
-                "title": "Show Mux",
+                "title": "Show Mux (also reloads configuration)",
                 "category": "Mux"
             },
             {
@@ -208,19 +208,33 @@
             "type": "object",
             "title": "Mux Configuration",
             "properties": {
-                "mux.tmuxPath": {
-                    "type": "string",
-                    "default": "tmux",
+                "mux.executablePath": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": null,
                     "description": "Path to tmux executable"
                 },
+                "mux.provider": {
+                    "type": "string",
+                    "enum": [
+                        "tmux",
+                        "screen"
+                    ],
+                    "default": "tmux"
+                },
                 "mux.globalConfiguration": {
-                    "type": "object",
-                    "default": {},
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "default": null,
                     "description": "The global mux configuration which will get loaded if no project configuration is found"
                 },
                 "mux.prefix": {
                     "type": "string",
-                    "default": "vsc",
+                    "default": "mux",
                     "description": "String to prepend to session names to differentiate over normal tmux sessions"
                 },
                 "mux.runAtStartup": {
@@ -243,11 +257,10 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
         "mocha": "^3.5.0",
-        "typescript": "^2.5.2",
+        "typescript": ">=2.4.0",
         "vscode": "^1.1.5"
     },
     "dependencies": {
-        "enum-values": "^1.2.0",
         "jsonschema": "^1.2.0",
         "lodash": "^4.17.4",
         "object-hash": "^1.1.8",

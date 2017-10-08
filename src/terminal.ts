@@ -3,7 +3,6 @@ import { spawnSync } from 'child_process';
 import { ExtensionContext } from 'vscode';
 import { tmuxCommand } from './mux';
 import * as _ from 'lodash';
-import { EnumValues } from 'enum-values';
 import { log } from './log';
 
 /**
@@ -30,6 +29,13 @@ export enum PaneNavigationDirection {
     RIGHT_OF
 }
 
+
+/**
+ * Navigation direction enum for windows
+ * 
+ * @export
+ * @enum {number} Navigation command input
+ */
 export enum WindowNavigationDirection {
     START,
     END,
@@ -48,8 +54,7 @@ export enum WindowNavigationDirection {
  * @returns {number} Output of tmuxCommand
  */
 export function moveToPaneDirection(sessionName: string, direction: PaneNavigationDirection, context: ExtensionContext): number {
-    const enumName = _.kebabCase(EnumValues.getNameFromValue(PaneNavigationDirection, direction));
-    return tmuxCommand(context, ['select-pane', '-t', `${sessionName}:0.{${enumName}}`])
+    return tmuxCommand(context, ['select-pane', '-t', `=${sessionName}:{${PaneNavigationDirection[direction]}}`])
 }
 
 
@@ -63,7 +68,7 @@ export function moveToPaneDirection(sessionName: string, direction: PaneNavigati
  * @returns {number} Output of tmuxCommand
  */
 export function moveToWindowById(sessionName: string, windowId: string, context: ExtensionContext): number {
-    return tmuxCommand(context, ['select-window', '-t', `${sessionName}:${windowId}`]);
+    return tmuxCommand(context, ['select-window', '-t', `=${sessionName}:${windowId}`]);
 }
 
 
@@ -71,12 +76,11 @@ export function moveToWindowById(sessionName: string, windowId: string, context:
  * Move in the given window direction in the session
  * 
  * @export
- * @param {string} sessionName 
- * @param {WindowNavigationDirection} direction 
- * @param {ExtensionContext} context 
+ * @param {string} sessionName Session to move within
+ * @param {WindowNavigationDirection} direction Direction to move
+ * @param {ExtensionContext} context Context of the extension
  * @returns {number} 
  */
 export function moveToWindowDirection(sessionName: string, direction: WindowNavigationDirection, context: ExtensionContext): number {
-    const enumName =  _.kebabCase(EnumValues.getNameFromValue(WindowNavigationDirection, direction));
-    return tmuxCommand(context, ['select-window', '-t',`${sessionName}:{${enumName}}`]);
+    return tmuxCommand(context, ['select-window', '-t',`=${sessionName}:{${WindowNavigationDirection[direction]}}`]);
 }

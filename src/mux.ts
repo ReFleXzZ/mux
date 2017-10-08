@@ -7,8 +7,10 @@ import * as cp from 'child_process';
 import * as hash from 'object-hash';
 import * as promisify from 'util.promisify';
 import * as util from './util';
-import { log, LogLevel } from './log';
 import { Validator, Schema } from 'jsonschema';
+import TmuxProvider from './tmuxProvider';
+import MuxProvider from './provider';
+import { info, error, warning } from './log';
 
 /**
  * Check whether a session called `sessionName` is found
@@ -17,10 +19,8 @@ import { Validator, Schema } from 'jsonschema';
  * @param {string} sessionName Name of the session to find
  * @returns {Promise<boolean>} True if session is found, false otherwise
  */
-export async function sessionExists(sessionName: string): Promise<boolean> {
-    const execAsync = promisify(cp.exec);
-    const output = await execAsync(`${util.getSetting('tmuxPath')} ls | grep ${sessionName}: | wc -l`);
-    return parseInt(output) > 0;
+export function sessionExists(context: ExtensionContext, sessionName: string): number {
+    return tmuxCommand(context, ['has-session', '-t', sessionName], true);
 }
 
 
@@ -32,35 +32,20 @@ export async function sessionExists(sessionName: string): Promise<boolean> {
  * @param {string[]} args Array of arguemnts to run
  * @returns {number} 0 if command ran successfully, -1 otherwise
  */
-export function tmuxCommand(context: ExtensionContext, args: string[]): number {
+// TODO: Move this to a TmuxProvider class
+export function tmuxCommand(context: ExtensionContext, args: string[], ignoreErrors: boolean = false): number {
     const shell = util.getShell();
 
-    log(`Running ${util.getSetting('tmuxPath')} ${args.join(' ')}`)
-    const tmux = cp.spawnSync(`${util.getSetting('tmuxPath')}`, args, {'shell': shell, 'cwd': workspace.workspaceFolders[0].uri.path});
+    info(`Running ${util.getSetting('executablePath')} ${args.join(' ')}`)
+    const tmux = cp.spawnSync(`${util.getSetting('executablePath')}`, args, {'shell': shell, 'cwd': workspace.workspaceFolders[0].uri.path});
     const stateProvider = util.getStateProvider(context);
     
     if (tmux.status === 0) {
         const commands = stateProvider.get<string[][]>('commands');
-        stateProvider.update('commands', [...commands, [`${util.getSetting('tmuxPath')}`, ...args]])
+        stateProvider.update('commands', [...commands, [`${util.getSetting('executablePath')}`, ...args]])
         return 0;
-    } else {        
-        if (tmux.stderr.toString().startsWith('duplicate session:')) {
-            window.showErrorMessage(`${_.upperFirst(tmux.stderr.toString())}`, null, {title: 'Restart'}, {title: 'Attach'}).then(clicked => {
-                switch(clicked.title) {
-                    case 'Restart':
-                        stateProvider.update('commands', []);
-                        killSession(`${util.getSetting('prefix')}-${util.getProjectName()}`);
-                        parseArgs(context);
-                    case 'Attach':
-                        runTmux();
-                        break;
-                    default:
-                        break;
-                }
-            });
-        } else {
-            log(`"${util.getSetting('tmuxPath')} ${args.join(' ')}" gave ${_.upperFirst(tmux.stderr.toString())} (${tmux.status})`, LogLevel.ERROR);
-        }
+    } else if (!ignoreErrors) {   
+        error(`"${util.getSetting('executablePath')} ${args.join(' ')}" gave ${_.upperFirst(tmux.stderr.toString())} (${tmux.status})`);
         return -1;
     }
 }
@@ -74,8 +59,8 @@ export function tmuxCommand(context: ExtensionContext, args: string[]): number {
 export function runTmux() {
     const shell = util.getShell();
     const projectName =  util.getProjectName();
-    const args = `${util.getSetting('tmuxPath')} -2 attach-session -t ${util.getSetting('prefix')}-${projectName}`;
-    log(`Attaching to session: ${util.getSetting('prefix')}-${projectName}`);
+    const args = `${util.getSetting('executablePath')} -2 attach-session -t ${util.getSetting('prefix')}-${projectName}`;
+    info(`Attaching to session: ${util.getSetting('prefix')}-${projectName}`);
     const term = window.createTerminal(projectName, `${shell}`, ["-c", `${args}`]);
     term.show();
 }
@@ -112,9 +97,9 @@ export function runTmuxAndCommands(context: ExtensionContext) {
  */
 export function getSessions(context: ExtensionContext): string[] {
     const prefix = util.getSetting('prefix');
-    const tmuxPath = util.getSetting('tmuxPath');
+    const executablePath = util.getSetting('executablePath');
 
-    const tmuxLs = cp.spawnSync(`${tmuxPath}`, ['ls']);
+    const tmuxLs = cp.spawnSync(`${executablePath}`, ['ls']);
     return tmuxLs.stdout.toString().match(/[^\r\n]+/g);
 }
 
@@ -145,30 +130,36 @@ export function killSessions(context: ExtensionContext) {
  * @param {ExtensionContext} context Context of the extension
  * @returns {boolean} True if all commands exited cleanly, false otherwise
  */
-export function parseArgs(context: ExtensionContext): boolean {
+export async function parseArgs(context: ExtensionContext, provider: MuxProvider): Promise<boolean> {
     const stateProvider = util.getStateProvider(context);
     const projectName = util.getProjectName();
     const prefix = util.getSetting('prefix');    
+    const sessionName = `${prefix}-${projectName}`;
     const configuration = stateProvider.get('configuration');
     
-    let args: string[][] = [];
     if (configuration) {
         if (configuration.hasOwnProperty('windows')) {
             const windows = configuration['windows'];
-            args.push(util.stringToArgs(`new -d -s ${prefix}-${projectName} -n '${windows[0].title ||  windows[0].command}' '${windows[0].command}'`));
-            windows.forEach(window => {
+            provider.createSession(windows[0].title ||  windows[0].command, windows[0].command);
+            windows[0].panes.forEach(pane => {
+                provider.createPane(pane.command, pane.isHorizontal);
+            });
+            _.filter(windows, window => window.title !== windows[0].title).forEach(window => {
+                provider.createWindow(window.title || window.command, window.command);
                 if (window.hasOwnProperty('panes')) {
                     window.panes.forEach(pane => {
-                        args.push(util.stringToArgs(`split-window -${pane.isHorizontal ? 'h' : 'v'} '${pane.command}'`));
+                        provider.createPane(pane.command, pane.isHorizontal);
                     });
-                } else {
-                    args.push(util.stringToArgs(`new-window -n '${window.title || window.command}' '${window.command}'`));
                 }
             });
         }
     }
 
-    return !_.some(args, arg => tmuxCommand(context, arg) != 0);
+    // return !_.some(args, arg => tmuxCommand(context, arg) != 0);
+    // TODO: Refactor Provider interface to builder and run build/apply here
+    // return promisify(true);
+    // return false;
+    return provider.build();
 }
 
 
@@ -181,7 +172,7 @@ export function parseArgs(context: ExtensionContext): boolean {
  */
 export function killSession(sessionName: string): cp.SpawnSyncReturns<string> {
     console.info(`Killing ${sessionName}`);
-    return cp.spawnSync(`${util.getSetting('tmuxPath')}`, ['kill-session', '-t', sessionName]);
+    return cp.spawnSync(`${util.getSetting('executablePath')}`, ['kill-session', '-t', sessionName]);
 }
 
 
@@ -265,11 +256,11 @@ export function loadConfig(context: ExtensionContext) {
     v.addSchema(paneSchema, "/Pane");
     const result = v.validate(file, sessionSchema);
     if (result.valid) {
-        log('Using valid project config');
+        info('Using valid project config');
         stateProvider.update('configuration', file);
     } else if (util.getSetting('globalConfiguration')) {
         // TODO: Implement a problem matcher
-        log('Project config is invalid, using global config', LogLevel.WARNING);
+        warning('Project config is invalid, using global config');
         stateProvider.update('configuration', util.getSetting('globalConfiguration'));
     }
 }

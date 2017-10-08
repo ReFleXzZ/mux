@@ -6,11 +6,12 @@
 - [Navigation](#navigation)
 - [Configuration](#configuration)
 - [Contributing](#contributing)
+- [Screen](#screen)
 - [Credits](#credits)
 
 Manage [tmux](https://github.com/tmux/tmux) from the safety of your editor!
 
-Mux aims to be a thin wrapper around tmux (possibly screen soon), providing an interface to allow you to describe layouts which will be called by tmux.
+Mux aims to be a thin wrapper around tmux and GNU screen, providing an interface to allow you to describe layouts which will be called by either command.
 
 **There be dragons here.** This might work beautifully and make you 10,00% more productive, but it's just as likely to set your Hue lights on fire and empty your bank account.
 
@@ -123,6 +124,27 @@ Below are some example commands to get you started contributing:
 Then drop me a pull request on GitHub (or from the command line if you use [hub](https://www.github.com/github/hub))
 
 Config files for linters and editorconfig are coming soon™.
+
+[Back to top](#mux)
+
+## Screen
+
+Screen support is minimal but supports a flat layout. If enough demand for better support arises I will investigate.
+
+In order to get the full experience™ of screen, including vertical splits, you will need to install a patched version of screen (tmux is *HIGHLY* encouraged but if you feel so inclined then proceed).
+
+### OSX
+
+Install using the commands below:
+
+`brew install homebrew/dupes/screen`
+`brew unlink screen && brew link screen`
+
+Reload your terminal configuration or restart vscode to use the new executable.
+
+### Linux
+
+Either build manually or attempt to install a patched version from your distro's repository.
 
 [Back to top](#mux)
 

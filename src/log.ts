@@ -6,25 +6,54 @@ import { OutputChannel, window } from 'vscode';
  * @export
  * @enum {number} Log level
  */
-export const enum LogLevel {
-    INFO,
-    WARNING,
-    ERROR
+const enum LogLevel {
+    INFO = "INFO",
+    WARNING = "WARNING",
+    ERROR = "ERROR"
 }
 
 /** OutputChannel to print to in the main editor */ 
 let outputChannel: OutputChannel;
 
 /**
- * Function to either log to the output channel, or create if not exists
+ * Function to either log to the output channel, and create if not exists
  * 
- * @export
  * @param {string} string Text to print in the OutputChannel
- * @param {types.LogLevel} [level] Log level to print (useful for output colorizr)
+ * @param {LogLevel} [level] Log level to print (useful for output colorizr)
  */
-export function log(string: string, level?: LogLevel) {
+function log(string: string, level: LogLevel) {
     if (!outputChannel) {
         outputChannel = window.createOutputChannel('Mux');
     }
-    outputChannel.appendLine(`${(level && level.toString()) || 'INFO'}: ${string}`);
+    outputChannel.appendLine(`${level}: ${string}`);
+}
+
+/**
+ * Log a string
+ * 
+ * @export
+ * @param {string} string String to log
+ */
+export function info(string: string) {
+    log(string, LogLevel.INFO);
+}
+
+/**
+ * Log a warning
+ * 
+ * @export
+ * @param {string} string Warning to log
+ */
+export function warning(string: string) {
+    log(string, LogLevel.WARNING);   
+}
+
+/**
+ * Log an error
+ * 
+ * @export
+ * @param {string} string Error to log
+ */
+export function error(string: string) {
+    log(string, LogLevel.ERROR);
 }

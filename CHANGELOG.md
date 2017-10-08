@@ -8,8 +8,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 Choo choo, here we come on the 1.0 train
 
-- Added window navigation commands
-
+- Added basic window navigation commands (still a few bugs)
+- Added support for named panes (doesn't reflect in nav commands yet)
+- Moved to a provider model
+- Added basic screen support
 
 ## 0.5.0
 

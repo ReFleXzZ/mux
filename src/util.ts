@@ -1,4 +1,6 @@
-import {ExtensionContext, OutputChannel, workspace, window, commands, Memento} from 'vscode';
+import * as vsc from 'vscode';
+import MuxProvider from './provider';
+import * as _ from 'lodash';
 
 /**
  * Get the vscode-compatible platform (useful for finding platform settings)
@@ -23,7 +25,7 @@ export function getPlatform(): string {
  * @returns {string} The name of the first project in the workspace
  */
 export function getProjectName(): string {
-    return workspace.workspaceFolders[0].name;
+    return vsc.workspace.workspaceFolders[0].name;
 }
 
 
@@ -34,7 +36,7 @@ export function getProjectName(): string {
  * @returns {string} The default shell
  */
 export function getShell(): string {
-    return workspace.getConfiguration('terminal.integrated.shell').get<string>(getPlatform());
+    return vsc.workspace.getConfiguration('terminal.integrated.shell').get<string>(getPlatform());
 }
 
 
@@ -45,8 +47,14 @@ export function getShell(): string {
  * @param {ExtensionContext} context Context to run methods on
  * @returns {Memento} workspaceState or globalState object for current context
  */
-export function getStateProvider(context: ExtensionContext): Memento {
+export function getStateProvider(context: vsc.ExtensionContext): vsc.Memento {
     return context.globalState.get('useWorkspaceState') ? context.workspaceState : context.globalState;
+}
+
+export async function getMuxProvider(context: vsc.ExtensionContext): Promise<MuxProvider> {
+    const module =  await import (`./${getSetting('provider')}Provider`);
+    const provider = Object.create(module.default.prototype);
+    return new provider.constructor(context);
 }
 
 
@@ -60,8 +68,8 @@ export function getStateProvider(context: ExtensionContext): Memento {
  * @returns {T} Either `defaultValue` or the value
  */
 export function getSetting<T>(settingKey: string, defaultValue?: T): T {
-    const settings = workspace.getConfiguration('mux');
-    return settings.has(settingKey) ? settings.get(settingKey) : defaultValue;
+    const settings = vsc.workspace.getConfiguration('mux');
+    return settings.has(settingKey) && settings.get(settingKey) !== 'null' && settings.get(settingKey) ? settings.get(settingKey) : defaultValue;
 }
 
 
@@ -74,7 +82,7 @@ export function getSetting<T>(settingKey: string, defaultValue?: T): T {
  * @param {T} value The value to set
  */
 export function updateSetting<T>(settingKey: string, value: T) {
-    const settings = workspace.getConfiguration('mux');
+    const settings = vsc.workspace.getConfiguration('mux');
     settings.update(settingKey, value);
 }
 
@@ -88,4 +96,15 @@ export function updateSetting<T>(settingKey: string, value: T) {
  */
 export function stringToArgs(string: string): string[] {
     return string.match(/('.*?'|[^'\s]+)+(?=\s*|\s*$)/g);
+}
+
+
+/**
+ * Get the session name for the current environment
+ * 
+ * @export
+ * @returns {string} Name of the mux session
+ */
+export function getSessionName(): string {
+    return `${getSetting('prefix')}-${getProjectName()}`;
 }
