@@ -71,7 +71,7 @@ Commands to map to the above directions are appropriately named (e.g. "Move left
 
 ## Configuration
 
-Currently the schema is quite simplistic and only supports creating simple panes and windows.
+Currently the schema is quite simplistic and only supports creating simple panes and windows. Configuration is handled in a .mux.json file (currently no generator) in project root. If you create the file after the project is loaded, you will also need to reload the window.
 
 A configuration should contain at least 1 window, and *every* window will always contain a command. Panes are optional but highly recommended.
 
